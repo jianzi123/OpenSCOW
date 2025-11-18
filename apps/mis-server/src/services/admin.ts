@@ -23,6 +23,7 @@ import {
 import { updateBlockStatusInSlurm } from "src/bl/block";
 import { getActivatedClusters } from "src/bl/clustersUtils";
 import { importUsers, ImportUsersData } from "src/bl/importUsers";
+import { syncUsersToCluster } from "src/bl/syncUsers";
 import { Account } from "src/entities/Account";
 import { StorageQuota } from "src/entities/StorageQuota";
 import { Tenant } from "src/entities/Tenant";
@@ -276,6 +277,83 @@ export const adminServiceServer = plugin((server) => {
       return [{
         totalUser, totalAccount, totalTenant, newUser, newAccount, newTenant,
       }];
+    },
+
+    syncUsersToCluster: async ({ request, em, logger }) => {
+      const { targetCluster } = request;
+
+      const currentActivatedClusters = await getActivatedClusters(em, logger);
+
+      // Check if target cluster is activated
+      if (!currentActivatedClusters[targetCluster]) {
+        throw new ServiceError({
+          code: Status.NOT_FOUND,
+          message: `Target cluster ${targetCluster} is not found or not activated`,
+        });
+      }
+
+      const targetClusterConfig = currentActivatedClusters[targetCluster];
+
+      const result = await syncUsersToCluster(
+        em,
+        targetCluster,
+        targetClusterConfig,
+        server.ext.clusters,
+        logger,
+      );
+
+      return [{
+        syncedAccountsCount: result.syncedAccountsCount,
+        syncedUsersCount: result.syncedUsersCount,
+        failedAccounts: result.failedAccounts,
+        failedUsers: result.failedUsers,
+      }];
+    },
+
+    getPartitions: async ({ request, em, logger }) => {
+      const { cluster } = request;
+
+      const currentActivatedClusters = await getActivatedClusters(em, logger);
+
+      const clustersToQuery = cluster
+        ? [cluster]
+        : Object.keys(currentActivatedClusters);
+
+      const result: { cluster: string; partitions: any[] }[] = [];
+
+      for (const clusterName of clustersToQuery) {
+        if (!currentActivatedClusters[clusterName]) {
+          logger.warn(`Cluster ${clusterName} is not activated, skipping`);
+          continue;
+        }
+
+        try {
+          const clusterConfig = await server.ext.clusters.callOnOne(
+            clusterName,
+            logger,
+            async (client) => await asyncClientCall(client.config, "getClusterConfig", {
+              cluster: clusterName,
+            }),
+          );
+
+          result.push({
+            cluster: clusterName,
+            partitions: clusterConfig.partitions.map((p) => ({
+              name: p.name,
+              memMb: p.memMb,
+              cores: p.cores,
+              gpus: p.gpus,
+              nodes: p.nodes,
+              qos: p.qos,
+              comment: p.comment,
+            })),
+          });
+        } catch (error) {
+          logger.error(`Failed to get partitions for cluster ${clusterName}: %o`, error);
+        }
+      }
+
+      return [{ clusters: result }];
     },
   });
 });

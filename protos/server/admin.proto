@@ -158,6 +158,40 @@ message UpdateBlockStatusRequest{
 message UpdateBlockStatusResponse{
 }
 
+message SyncUsersToClusterRequest {
+  string target_cluster = 1;
+}
+
+message SyncUsersToClusterResponse {
+  uint32 synced_accounts_count = 1;
+  uint32 synced_users_count = 2;
+  repeated string failed_accounts = 3;
+  repeated string failed_users = 4;
+}
+
+message GetPartitionsRequest {
+  optional string cluster = 1; // 如果为空，返回所有集群的分区
+}
+
+message PartitionInfo {
+  string name = 1;
+  uint64 mem_mb = 2;
+  uint32 cores = 3;
+  uint32 gpus = 4;
+  uint32 nodes = 5;
+  repeated string qos = 6;
+  optional string comment = 7;
+}
+
+message ClusterPartitionsInfo {
+  string cluster = 1;
+  repeated PartitionInfo partitions = 2;
+}
+
+message GetPartitionsResponse {
+  repeated ClusterPartitionsInfo clusters = 1;
+}
+
 message GetAdminInfoRequest {
 }
 
@@ -209,4 +243,15 @@ service AdminService {
   rpc GetSyncBlockStatusInfo(GetSyncBlockStatusInfoRequest) returns (GetSyncBlockStatusInfoResponse);
   rpc SetSyncBlockStatusState(SetSyncBlockStatusStateRequest) returns (SetSyncBlockStatusStateResponse);
   rpc SyncBlockStatus(SyncBlockStatusRequest) returns (SyncBlockStatusResponse);
+
+  /*
+   * Synchronize all accounts and users from SCOW database to a target cluster
+   * This is useful when adding a new cluster to the multi-cluster setup
+   */
+  rpc SyncUsersToCluster(SyncUsersToClusterRequest) returns (SyncUsersToClusterResponse);
+
+  /*
+   * Get partitions information from all clusters or a specific cluster
+   */
+  rpc GetPartitions(GetPartitionsRequest) returns (GetPartitionsResponse);
 }
