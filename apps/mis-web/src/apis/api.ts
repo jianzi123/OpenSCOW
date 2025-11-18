@@ -50,11 +50,13 @@ import type { GetAlarmDbIdSchema } from "src/pages/api/admin/monitor/getAlarmDbI
 import type { GetAlarmLogsSchema } from "src/pages/api/admin/monitor/getAlarmLogs";
 import type { GetAlarmLogsCountSchema } from "src/pages/api/admin/monitor/getAlarmLogsCount";
 import type { QueryStorageQuotaSchema } from "src/pages/api/admin/queryStorageQuota";
+import type { GetPartitionsSchema } from "src/pages/api/admin/resource/getPartitions";
 import type { SetPlatformRoleSchema } from "src/pages/api/admin/setPlatformRole";
 import type { SetTenantRoleSchema } from "src/pages/api/admin/setTenantRole";
 import type { GetSyncBlockStatusJobInfoSchema } from "src/pages/api/admin/synchronize/getSyncBlockStateInfo";
 import type { SetSyncBlockStatusStateSchema } from "src/pages/api/admin/synchronize/setSynchronizeState";
 import type { SyncBlockStatusSchema } from "src/pages/api/admin/synchronize/syncBlockStatus";
+import type { SyncUsersToClusterSchema } from "src/pages/api/admin/synchronize/syncUsersToCluster";
 import type { UnsetPlatformRoleSchema } from "src/pages/api/admin/unsetPlatformRole";
 import type { UnsetTenantRoleSchema } from "src/pages/api/admin/unsetTenantRole";
 import type { AuthCallbackSchema } from "src/pages/api/auth/callback";
@@ -160,9 +162,11 @@ export const api = {
   queryStorageQuota: apiClient.fromTypeboxRoute<typeof QueryStorageQuotaSchema>("GET", "/api/admin/queryStorageQuota"),
   setPlatformRole: apiClient.fromTypeboxRoute<typeof SetPlatformRoleSchema>("PUT", "/api/admin/setPlatformRole"),
   setTenantRole: apiClient.fromTypeboxRoute<typeof SetTenantRoleSchema>("PUT", "/api/admin/setTenantRole"),
+  getPartitions: apiClient.fromTypeboxRoute<typeof GetPartitionsSchema>("GET", "/api/admin/resource/getPartitions"),
   getSyncBlockStatusJobInfo: apiClient.fromTypeboxRoute<typeof GetSyncBlockStatusJobInfoSchema>("GET", "/api/admin/synchronize/getSyncBlockStateInfo"),
   setSyncBlockStatusState: apiClient.fromTypeboxRoute<typeof SetSyncBlockStatusStateSchema>("POST", "/api/admin/synchronize/setSynchronizeState"),
   syncBlockStatus: apiClient.fromTypeboxRoute<typeof SyncBlockStatusSchema>("PUT", "/api/admin/synchronize/syncBlockStatus"),
+  syncUsersToCluster: apiClient.fromTypeboxRoute<typeof SyncUsersToClusterSchema>("POST", "/api/admin/synchronize/syncUsersToCluster"),
   unsetPlatformRole: apiClient.fromTypeboxRoute<typeof UnsetPlatformRoleSchema>("PUT", "/api/admin/unsetPlatformRole"),
   unsetTenantRole: apiClient.fromTypeboxRoute<typeof UnsetTenantRoleSchema>("PUT", "/api/admin/unsetTenantRole"),
   authCallback: apiClient.fromTypeboxRoute<typeof AuthCallbackSchema>("GET", "/api/auth/callback"),

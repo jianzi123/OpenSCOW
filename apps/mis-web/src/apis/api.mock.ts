@@ -531,6 +531,41 @@ export const mockApi: MockApi<typeof api> = {
   activateCluster: async () => ({ executed: true }),
   deactivateCluster: async () => ({ executed: true }),
 
+  getPartitions: async () => ({
+    clusters: [
+      {
+        cluster: "hpc01",
+        partitions: [
+          {
+            name: "compute",
+            memMb: 128000,
+            cores: 32,
+            gpus: 0,
+            nodes: 10,
+            qos: ["low", "normal", "high"],
+            comment: "CPU partition",
+          },
+          {
+            name: "GPU",
+            memMb: 256000,
+            cores: 64,
+            gpus: 4,
+            nodes: 5,
+            qos: ["normal", "high"],
+            comment: "GPU partition",
+          },
+        ],
+      },
+    ],
+  }),
+
+  syncUsersToCluster: async () => ({
+    syncedAccountsCount: 10,
+    syncedUsersCount: 50,
+    failedAccounts: [],
+    failedUsers: [],
+  }),
+
   exportAccount: null,
   exportChargeRecord: null,
   exportPayRecord: null,
